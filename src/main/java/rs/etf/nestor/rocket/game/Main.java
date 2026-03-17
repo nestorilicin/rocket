@@ -8,6 +8,7 @@ import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -15,8 +16,11 @@ import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import rs.etf.nestor.rocket.camera.AbstractCamera;
 import rs.etf.nestor.rocket.camera.DefaultCamera;
+import rs.etf.nestor.rocket.camera.OrbitCamera;
+import rs.etf.nestor.rocket.camera.RearCamera;
 import rs.etf.nestor.rocket.object.*;
 
+import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -49,6 +53,11 @@ public class Main extends Application {
     private Spacecraft selectedRocket;
 
     private Text fuelText;
+    
+    private Text cameraCoords;
+    
+    private RearCamera rearCamera;
+    private OrbitCamera orbitCamera;
     private void createSelectionScreen() {
         selectionGroup = new Group();
         
@@ -137,6 +146,7 @@ public class Main extends Application {
         scene.setOnKeyReleased(this::onKeyReleased);
         scene.setOnMousePressed(this::onMousePressed);
         scene.setOnMouseDragged(this::onMouseDragged);
+        scene.setOnScroll(this::onScroll);
     }
 
     private class UpdateTimer extends AnimationTimer {
@@ -157,6 +167,8 @@ public class Main extends Application {
                 spacecraft.update(passed);
                 spacecraft.consumeFuel();
                 fuelText.setText("Fuel: " + (int)spacecraft.getFuel());
+                if(camera == rearCamera) cameraCoords.setText("cameraY = " + rearCamera.getCameraY() + "\ncameraZ = " + rearCamera.getCameraZ());
+                else cameraCoords.setText("");
                 camera.update();
                 checkForCollisions();
                 previous = now;
@@ -210,17 +222,24 @@ public class Main extends Application {
         instantiateCameras();
         mainSubscene.setCamera(camera.getCamera());
         
-        fuelText = new Text("Fuel: " + (int)spacecraft.getFuel());
+        fuelText = new Text();
         fuelText.setFont(new Font(20));
         fuelText.setTranslateX(20);
         fuelText.setTranslateY(30);
         fuelText.setFill(Color.WHITESMOKE);
-        root.getChildren().addAll(mainSubscene, fuelText);
+        cameraCoords = new Text();
+        cameraCoords.setFill(Color.GREEN);
+        cameraCoords.setTranslateX(20);
+        cameraCoords.setTranslateY(100);
+        
+        root.getChildren().addAll(mainSubscene, fuelText, cameraCoords);
         timer.start();
     }
 
     private void instantiateCameras() {
         camera = defaultCamera;
+        rearCamera = new RearCamera(spacecraft);
+        orbitCamera = new OrbitCamera(spacecraft);
     }
 
     @Override
@@ -262,6 +281,34 @@ public class Main extends Application {
                 camera = defaultCamera;
                 mainSubscene.setCamera(camera.getCamera());
                 break;
+            case DIGIT2:
+                camera = rearCamera;
+                mainSubscene.setCamera(camera.getCamera());
+                break;
+            case DIGIT3:
+                camera = orbitCamera;
+                mainSubscene.setCamera(camera.getCamera());
+                break;
+            case EQUALS: // nemam plus na tastaturi TODO promeniti na odbrani
+                if (camera instanceof  RearCamera) {
+                    ((RearCamera) camera).increaseDistance();
+                }
+                break;
+            case MINUS:
+                if (camera instanceof  RearCamera) {
+                    ((RearCamera) camera).decreaseDistance();
+                }
+                break;
+            case PAGE_UP:
+                if (camera instanceof  RearCamera) {
+                    ((RearCamera) camera).increaseHeight();
+                }
+                break;
+            case PAGE_DOWN:
+                if (camera instanceof  RearCamera) {
+                    ((RearCamera) camera).decreaseHeight();
+                }
+                break;
             case SPACE:
                 spacecraft.spacePressed();
                 break;
@@ -292,10 +339,10 @@ public class Main extends Application {
     }
 
     private void onMousePressed(MouseEvent e) {
-        if (e.getButton().ordinal() == 3) {
+        
             mouseXRight = e.getSceneX();
             mouseYRight = e.getSceneY();
-        }
+        
     }
 
     private void onMouseDragged(MouseEvent e) {
@@ -303,11 +350,20 @@ public class Main extends Application {
             if (e.getButton().ordinal() == 3) {
                 defaultCamera.updatePosition(e.getSceneX() - mouseXRight, e.getSceneY() - mouseYRight);
             }
+        } else if(camera == orbitCamera){
+            if(e.getButton().ordinal() == 1){
+                orbitCamera.rotate(e.getSceneX() - mouseXRight, e.getSceneY() - mouseYRight);
+            }
         }
         mouseXRight = e.getSceneX();
         mouseYRight = e.getSceneY();
     }
 
+    private void onScroll(ScrollEvent e) {
+        if(camera instanceof OrbitCamera){
+            ((OrbitCamera) camera).zoom(-e.getDeltaY());
+        }
+    }
 
     public static void main(String[] args) {
         launch(args);
