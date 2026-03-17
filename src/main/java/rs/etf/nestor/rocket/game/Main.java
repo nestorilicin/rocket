@@ -1,18 +1,23 @@
 package rs.etf.nestor.rocket.game;
 
-import rs.etf.nestor.rocket.camera.*;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.scene.*;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.SceneAntialiasing;
+import javafx.scene.SubScene;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
+import rs.etf.nestor.rocket.camera.AbstractCamera;
+import rs.etf.nestor.rocket.camera.DefaultCamera;
 import rs.etf.nestor.rocket.object.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javafx.scene.input.MouseEvent;
 
 public class Main extends Application {
     private static final int WINDOW_HEIGHT = 700;
@@ -28,21 +33,108 @@ public class Main extends Application {
     private LaunchPad launchPad;
     private List<SpaceObject> bubbles = new ArrayList<>();
     private int bubblesHit;
-    
+
     private UpdateTimer timer = new UpdateTimer();
 
     private DefaultCamera defaultCamera = new DefaultCamera();
     private AbstractCamera camera;
-    
+
     private double mouseXRight;
     private double mouseYRight;
 
+    private SubScene selectionSubscene;
+    private Group selectionGroup;
+    private Spacecraft selectedRocket;
+
+    private void createSelectionScreen() {
+        selectionGroup = new Group();
+        
+        Rocket rocket = new Rocket();
+        AltRocket altrocket = new AltRocket();
+        
+        rocket.setTranslateX(200);
+        rocket.setTranslateY(300);
+        altrocket.setTranslateX(700);
+        altrocket.setTranslateY(300);
+        
+        Rotate rocketInitial = new Rotate(90, Rotate.X_AXIS);
+        Rotate rocketYaw = new Rotate(0, Rotate.Z_AXIS);
+        Rotate rocketTilt = new Rotate(0, Rotate.Y_AXIS);
+        Rotate rocketRoll = new Rotate(0, Rotate.X_AXIS);
+
+        rocket.getTransforms().addAll(
+                rocketInitial,
+                rocketRoll,
+                rocketTilt,
+                rocketYaw
+        );
+        
+        altrocket.getTransforms().addAll(
+                rocketInitial,
+                rocketRoll,
+                rocketTilt,
+                rocketYaw
+        );
+        
+        selectionGroup.getChildren().addAll(rocket, altrocket);
+        selectionSubscene = new SubScene(selectionGroup, WINDOW_WIDTH, WINDOW_HEIGHT, true, SceneAntialiasing.BALANCED);
+        selectionSubscene.setFill(Color.BLACK);
+        AnimationTimer rotateTimer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                rocketYaw.setAngle(rocketYaw.getAngle() + 1);
+                rocketTilt.setAngle(rocketTilt.getAngle() + 0.3);
+                rocketRoll.setAngle(rocketRoll.getAngle() + 0.2);
+            }
+        };
+        rotateTimer.start();
+        root.getChildren().add(selectionSubscene);
+        scene.setOnKeyPressed(e -> {
+            switch (e.getCode()) {
+                case DIGIT1:
+                    selectedRocket = rocket;
+                    rocket.setTranslateX(rocket.getTranslateX() - 200);
+                    rocket.setTranslateY(rocket.getTranslateY() - 300);
+                    rocket.getTransforms().removeAll(
+                            rocketInitial,
+                            rocketYaw,
+                            rocketTilt,
+                            rocketRoll
+                    );
+                    startGame();
+                    break;
+                case DIGIT2:
+                    selectedRocket = altrocket;
+                    altrocket.setTranslateX(altrocket.getTranslateX() - 700);
+                    altrocket.setTranslateY(altrocket.getTranslateY() - 300);
+                    altrocket.getTransforms().removeAll(
+                            rocketInitial,
+                            rocketYaw,
+                            rocketTilt,
+                            rocketRoll
+                    );
+                    startGame();
+                    break;
+            }
+        });
+    }
+
+    private void startGame() {
+        root.getChildren().remove(selectionSubscene);
+        createMainScene(selectedRocket);
+        root.getChildren().add(mainSubscene);
+        scene.setOnKeyPressed(this::onKeyPressed);
+        scene.setOnKeyReleased(this::onKeyReleased);
+        scene.setOnMousePressed(this::onMousePressed);
+        scene.setOnMouseDragged(this::onMouseDragged);
+    }
+
     private class UpdateTimer extends AnimationTimer {
         private long previous = 0;
+
         @Override
         public void handle(long now) {
-            if (previous == 0)
-                previous = now;
+            if (previous == 0) previous = now;
             float passed = (now - previous) / 1e9f;
             spacecraft.update(passed);
             camera.update();
@@ -51,7 +143,7 @@ public class Main extends Application {
         }
     }
 
-       private void checkForCollisions() {
+    private void checkForCollisions() {
         Iterator<SpaceObject> iterator = bubbles.iterator();
         while (iterator.hasNext()) {
             SpaceObject spaceObject = iterator.next();
@@ -84,16 +176,17 @@ public class Main extends Application {
         }
     }
 
-    private void createMainScene() {
+    private void createMainScene(Spacecraft spacecraft) {
+        this.spacecraft = spacecraft;
         mainSceneRoot = new Group();
         mainSubscene = new SubScene(mainSceneRoot, WINDOW_WIDTH, WINDOW_HEIGHT, true, SceneAntialiasing.BALANCED);
         mainSubscene.setFill(Color.BLACK);
-        spacecraft = new Rocket();
         launchPad = new LaunchPad();
         mainSceneRoot.getChildren().addAll(launchPad, spacecraft);
         setUpSpaceObjects();
         instantiateCameras();
         mainSubscene.setCamera(camera.getCamera());
+        timer.start();
     }
 
     private void instantiateCameras() {
@@ -103,34 +196,30 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         root = new Group();
-        createMainScene();
-        root.getChildren().addAll(mainSubscene);
-
         scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT, true);
-        scene.setOnKeyPressed(this::onKeyPressed);
-        scene.setOnKeyReleased(this::onKeyReleased);
-        scene.setOnMousePressed(this::onMousePressed);
-        scene.setOnMouseDragged(this::onMouseDragged);
+        createSelectionScreen();
+
+
         primaryStage.setTitle("Rocket");
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.sizeToScene();
         primaryStage.show();
-        timer.start();
+
     }
 
     private void onKeyPressed(KeyEvent e) {
         switch (e.getCode()) {
-            case UP :
+            case UP:
                 spacecraft.setPitchDirection(-1);
                 break;
-            case DOWN :
+            case DOWN:
                 spacecraft.setPitchDirection(1);
                 break;
-            case LEFT :
+            case LEFT:
                 spacecraft.setRollDirection(-1);
                 break;
-            case RIGHT :
+            case RIGHT:
                 spacecraft.setRollDirection(1);
                 break;
             case C:
@@ -151,16 +240,16 @@ public class Main extends Application {
 
     private void onKeyReleased(KeyEvent e) {
         switch (e.getCode()) {
-            case UP :
+            case UP:
                 if (spacecraft.getPitchDirection() == -1) spacecraft.setPitchDirection(0);
                 break;
-            case DOWN :
+            case DOWN:
                 if (spacecraft.getPitchDirection() == 1) spacecraft.setPitchDirection(0);
                 break;
-            case LEFT :
+            case LEFT:
                 if (spacecraft.getRollDirection() == -1) spacecraft.setRollDirection(0);
                 break;
-            case RIGHT :
+            case RIGHT:
                 if (spacecraft.getRollDirection() == 1) spacecraft.setRollDirection(0);
                 break;
             case C:
@@ -171,7 +260,7 @@ public class Main extends Application {
                 break;
         }
     }
-    
+
     private void onMousePressed(MouseEvent e) {
         if (e.getButton().ordinal() == 3) {
             mouseXRight = e.getSceneX();
@@ -188,7 +277,6 @@ public class Main extends Application {
         mouseXRight = e.getSceneX();
         mouseYRight = e.getSceneY();
     }
-
 
 
     public static void main(String[] args) {

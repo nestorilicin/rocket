@@ -1,6 +1,5 @@
 package rs.etf.nestor.rocket.object;
 
-import rs.etf.nestor.rocket.game.Main;
 import rs.etf.nestor.rocket.geometry.Vector;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
@@ -86,7 +85,7 @@ public class Rocket extends Spacecraft {
     private Group makeCone(float radius, float height, PhongMaterial material) {
         Group cone = new Group();
 
-        int numberOfTriangles = 360;
+        int numberOfTriangles = NUM_OF_TRIANGLES;
 
         float[] points = new float[numberOfTriangles * 3 * 3];
         float[] textCoords = {

@@ -10,7 +10,7 @@ public abstract class Spacecraft extends SpaceObject {
     protected double rotationFactor = 4;
     protected double maxSpeed = 3000;
     protected double minSpeed = 200;
-
+    static int NUM_OF_TRIANGLES = 360;
     protected int pitchDirection;
     protected int rollDirection;
     protected int accelerationDirection;

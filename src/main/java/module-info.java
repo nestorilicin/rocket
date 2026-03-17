@@ -1,6 +1,7 @@
 module rs.etf.nestor.rocket {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.graphics;
 
 
     opens rs.etf.nestor.rocket to javafx.fxml;
