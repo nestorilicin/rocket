@@ -18,6 +18,8 @@ import rs.etf.nestor.rocket.camera.AbstractCamera;
 import rs.etf.nestor.rocket.camera.DefaultCamera;
 import rs.etf.nestor.rocket.camera.OrbitCamera;
 import rs.etf.nestor.rocket.camera.RearCamera;
+import rs.etf.nestor.rocket.hud.HeadsUpDisplay;
+import rs.etf.nestor.rocket.hud.VerticalView;
 import rs.etf.nestor.rocket.object.*;
 
 import java.awt.event.MouseWheelEvent;
@@ -26,8 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Main extends Application {
-    private static final int WINDOW_HEIGHT = 700;
-    private static final int WINDOW_WIDTH = 900;
+    public static final int WINDOW_HEIGHT = 700;
+    public static final int WINDOW_WIDTH = 900;
 
     private Group root;
     private Group mainSceneRoot;
@@ -58,6 +60,8 @@ public class Main extends Application {
     
     private RearCamera rearCamera;
     private OrbitCamera orbitCamera;
+    private HeadsUpDisplay hud;
+    private VerticalView verticalHud;
     private void createSelectionScreen() {
         selectionGroup = new Group();
         
@@ -169,6 +173,8 @@ public class Main extends Application {
                 fuelText.setText("Fuel: " + (int)spacecraft.getFuel());
                 if(camera == rearCamera) cameraCoords.setText("cameraY = " + rearCamera.getCameraY() + "\ncameraZ = " + rearCamera.getCameraZ());
                 else cameraCoords.setText("");
+                hud.update(bubblesHit);
+                verticalHud.update();
                 camera.update();
                 checkForCollisions();
                 previous = now;
@@ -232,7 +238,9 @@ public class Main extends Application {
         cameraCoords.setTranslateX(20);
         cameraCoords.setTranslateY(100);
         
-        root.getChildren().addAll(mainSubscene, fuelText, cameraCoords);
+        hud = new HeadsUpDisplay(spacecraft);
+        verticalHud = new VerticalView(spacecraft);
+        root.getChildren().addAll(mainSubscene, fuelText, cameraCoords, hud.getScene(), verticalHud.getScene());
         timer.start();
     }
 
@@ -276,6 +284,10 @@ public class Main extends Application {
                 break;
             case X:
                 spacecraft.setAccelerationDirection(-1);
+                break;
+            case H:
+                hud.toggleHide();
+                verticalHud.toggleHide();
                 break;
             case DIGIT1:
                 camera = defaultCamera;
