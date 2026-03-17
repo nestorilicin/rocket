@@ -72,7 +72,8 @@ public class Rocket extends Spacecraft {
         wing3.getTransforms().addAll(new Rotate(-90, Rotate.Y_AXIS), new Translate(50, -60, 0));
 
         this.getChildren().addAll(mainBody, sphere, wing1, wing2, wing3);
-
+        
+        
         state = new IdleState(this);
 
         this.getTransforms().addAll(new Translate(position.getX(), position.getY(), position.getZ()));

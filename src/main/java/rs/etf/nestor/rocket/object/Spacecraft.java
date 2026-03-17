@@ -1,5 +1,9 @@
 package rs.etf.nestor.rocket.object;
 
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import rs.etf.nestor.rocket.state.State;
 
 public abstract class Spacecraft extends SpaceObject {
@@ -13,8 +17,8 @@ public abstract class Spacecraft extends SpaceObject {
     static int NUM_OF_TRIANGLES = 360;
     protected int pitchDirection;
     protected int rollDirection;
-    protected int accelerationDirection;
-
+    protected int accelerationDirection; 
+    
     protected State state;
 
     public abstract void update(double passed);
@@ -79,4 +83,21 @@ public abstract class Spacecraft extends SpaceObject {
         return minSpeed;
     }
 
+    public double getFuel() {
+        return state.getFuel();
+    }
+    
+    public void consumeFuel() {
+        state.consumeFuel();
+    }
+    
+    public Text getRocketInfo(String name, Color c){
+        Text rocketInfo = new Text(name +"\n" +
+                "\nMaxSpeed " + getMaxSpeed() + 
+                "\nRoll speed " + getRollSpeed());
+        rocketInfo.setFont(new Font(24));
+        rocketInfo.setTextAlignment(TextAlignment.CENTER);
+        rocketInfo.setFill(c);
+        return rocketInfo;
+    }
 }

@@ -9,6 +9,8 @@ import javafx.scene.SubScene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import rs.etf.nestor.rocket.camera.AbstractCamera;
@@ -46,6 +48,7 @@ public class Main extends Application {
     private Group selectionGroup;
     private Spacecraft selectedRocket;
 
+    private Text fuelText;
     private void createSelectionScreen() {
         selectionGroup = new Group();
         
@@ -79,6 +82,13 @@ public class Main extends Application {
         selectionGroup.getChildren().addAll(rocket, altrocket);
         selectionSubscene = new SubScene(selectionGroup, WINDOW_WIDTH, WINDOW_HEIGHT, true, SceneAntialiasing.BALANCED);
         selectionSubscene.setFill(Color.BLACK);
+        Text rocketInfo = rocket.getRocketInfo("Rocket 1", Color.DARKGRAY);
+        
+        rocketInfo.setTranslateX(100);
+        rocketInfo.setTranslateY(500);
+        Text altrocketInfo = altrocket.getRocketInfo("Rocket 2", Color.CYAN);
+        altrocketInfo.setTranslateX(600);
+        altrocketInfo.setTranslateY(500);
         AnimationTimer rotateTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -88,6 +98,7 @@ public class Main extends Application {
             }
         };
         rotateTimer.start();
+        selectionGroup.getChildren().addAll(rocketInfo, altrocketInfo);
         root.getChildren().add(selectionSubscene);
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
@@ -122,7 +133,6 @@ public class Main extends Application {
     private void startGame() {
         root.getChildren().remove(selectionSubscene);
         createMainScene(selectedRocket);
-        root.getChildren().add(mainSubscene);
         scene.setOnKeyPressed(this::onKeyPressed);
         scene.setOnKeyReleased(this::onKeyReleased);
         scene.setOnMousePressed(this::onMousePressed);
@@ -134,12 +144,23 @@ public class Main extends Application {
 
         @Override
         public void handle(long now) {
-            if (previous == 0) previous = now;
-            float passed = (now - previous) / 1e9f;
-            spacecraft.update(passed);
-            camera.update();
-            checkForCollisions();
-            previous = now;
+            if(spacecraft.getFuel() <= 0){
+                Text game_over = new Text("GAME OVER");
+                game_over.setFont(new Font(30));
+                game_over.setTranslateX(WINDOW_WIDTH / 2. - game_over.getBoundsInLocal().getWidth() / 2);
+                game_over.setTranslateY(WINDOW_HEIGHT / 2.);
+                game_over.setFill(Color.RED);
+                root.getChildren().add(game_over);
+            } else{
+                if (previous == 0) previous = now;
+                float passed = (now - previous) / 1e9f;
+                spacecraft.update(passed);
+                spacecraft.consumeFuel();
+                fuelText.setText("Fuel: " + (int)spacecraft.getFuel());
+                camera.update();
+                checkForCollisions();
+                previous = now;
+            }
         }
     }
 
@@ -181,11 +202,20 @@ public class Main extends Application {
         mainSceneRoot = new Group();
         mainSubscene = new SubScene(mainSceneRoot, WINDOW_WIDTH, WINDOW_HEIGHT, true, SceneAntialiasing.BALANCED);
         mainSubscene.setFill(Color.BLACK);
+        
         launchPad = new LaunchPad();
         mainSceneRoot.getChildren().addAll(launchPad, spacecraft);
+        
         setUpSpaceObjects();
         instantiateCameras();
         mainSubscene.setCamera(camera.getCamera());
+        
+        fuelText = new Text("Fuel: " + (int)spacecraft.getFuel());
+        fuelText.setFont(new Font(20));
+        fuelText.setTranslateX(20);
+        fuelText.setTranslateY(30);
+        fuelText.setFill(Color.WHITESMOKE);
+        root.getChildren().addAll(mainSubscene, fuelText);
         timer.start();
     }
 

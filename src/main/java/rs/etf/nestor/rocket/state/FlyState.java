@@ -88,4 +88,10 @@ public class FlyState extends State {
 
         return angle;
     }
+
+    @Override
+    public void consumeFuel() {
+        double amount = speed/maxSpeed * (1./10.);
+        fuel -= amount;
+    }
 }

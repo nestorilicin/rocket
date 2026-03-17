@@ -68,6 +68,8 @@ public class AltRocket extends Spacecraft {
         this.getChildren().addAll(topSphere, cone1, body1, cone2, body2, cone3, body3, wing1, wing2, wing3);
 
         state = new IdleState(this);
+        maxSpeed = 3750;
+        rollSpeed = 45;
         this.getTransforms().add(new Translate(position.getX(), position.getY(), position.getZ()));
 
     }
