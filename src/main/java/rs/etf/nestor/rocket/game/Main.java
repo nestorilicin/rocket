@@ -9,6 +9,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
@@ -27,7 +28,8 @@ import java.util.List;
 public class Main extends Application {
     public static final int WINDOW_HEIGHT = 700;
     public static final int WINDOW_WIDTH = 900;
-
+    private static int remainingTime = 90;
+    private final static int TIME_ON_BUBBLE_HIT_INCREMENT = 10;
     private Group root;
     private Group mainSceneRoot;
 
@@ -52,9 +54,9 @@ public class Main extends Application {
     private Spacecraft selectedRocket;
 
     private Text fuelText;
-
-    private Text cameraCoords;
-
+    private Text timeText;
+    private double secondCounter = 0;
+    private int totalGameTime = 0;
     private RearCamera rearCamera;
     private OrbitCamera orbitCamera;
     private HeadsUpDisplay hud;
@@ -137,8 +139,9 @@ public class Main extends Application {
 
         @Override
         public void handle(long now) {
-            if (spacecraft.getFuel() <= 0) {
-                Text game_over = new Text("GAME OVER");
+            if (spacecraft.getFuel() <= 0 || remainingTime <= 0) {
+                Text game_over = new Text("GAME OVER\nTotal game time " + totalGameTime + "\nBubbles hit " + bubblesHit);
+                game_over.setTextAlignment(TextAlignment.CENTER);
                 game_over.setFont(new Font(30));
                 game_over.setTranslateX(WINDOW_WIDTH / 2. - game_over.getBoundsInLocal().getWidth() / 2);
                 game_over.setTranslateY(WINDOW_HEIGHT / 2.);
@@ -150,9 +153,13 @@ public class Main extends Application {
                 spacecraft.update(passed);
                 spacecraft.consumeFuel();
                 fuelText.setText("Fuel: " + (int) spacecraft.getFuel());
-                if (camera == rearCamera)
-                    cameraCoords.setText("cameraY = " + rearCamera.getCameraY() + "\ncameraZ = " + rearCamera.getCameraZ());
-                else cameraCoords.setText("");
+                secondCounter += passed;
+                if(secondCounter > 1.0){
+                    secondCounter = 0;
+                    remainingTime--;
+                    totalGameTime++;
+                    timeText.setText("Remaining time: " + remainingTime);
+                }
                 hud.update(bubblesHit);
                 verticalHud.update();
                 camera.update();
@@ -168,6 +175,7 @@ public class Main extends Application {
             SpaceObject spaceObject = iterator.next();
             if (spaceObject.getBoundsInParent().intersects(spacecraft.getBoundsInParent())) {
                 positionObject(spaceObject);
+                remainingTime += TIME_ON_BUBBLE_HIT_INCREMENT;
                 bubblesHit++;
             }
         }
@@ -213,36 +221,32 @@ public class Main extends Application {
         fuelText.setTranslateX(20);
         fuelText.setTranslateY(30);
         fuelText.setFill(Color.WHITESMOKE);
-        cameraCoords = new Text();
-        cameraCoords.setFill(Color.GREEN);
-        cameraCoords.setTranslateX(20);
-        cameraCoords.setTranslateY(100);
 
+        timeText = new Text();
+        timeText.setFont(new Font(20));
+        timeText.setTranslateY(30);
+        timeText.setFill(Color.WHITESMOKE);
+        timeText.setText("Remaining time: " + remainingTime);
+        timeText.setTranslateX(WINDOW_WIDTH / 2. - timeText.getBoundsInLocal().getWidth() / 2);
         hud = new HeadsUpDisplay(spacecraft);
         verticalHud = new VerticalView(spacecraft);
-        root.getChildren().addAll(mainSubscene, fuelText, cameraCoords, hud.getScene(), verticalHud.getScene());
+        root.getChildren().addAll(mainSubscene, fuelText, timeText, hud.getScene(), verticalHud.getScene());
         timer.start();
     }
 
     private void instantiateCameras() {
-        defaultLight = new PointLight(); // slabo belo svetlo
+        defaultLight = new PointLight();
         camera = defaultCamera;
         rearCamera = new RearCamera(spacecraft);
         orbitCamera = new OrbitCamera(spacecraft);
-        // svetlo ide DIREKTNO u root scene
         mainSceneRoot.getChildren().add(defaultLight);
-
-        // inicijalno vezivanje za default kameru
         bindLightToCamera(camera);
     }
 
     private void bindLightToCamera(AbstractCamera cam) {
-        // skini stare bindove
         defaultLight.translateXProperty().unbind();
         defaultLight.translateYProperty().unbind();
         defaultLight.translateZProperty().unbind();
-
-        // VEŽI za novu kameru
         defaultLight.translateXProperty().bind(cam.getCamera().localToSceneTransformProperty().map(Transform::getTx));
         defaultLight.translateYProperty().bind(cam.getCamera().localToSceneTransformProperty().map(Transform::getTy));
         defaultLight.translateZProperty().bind(cam.getCamera().localToSceneTransformProperty().map(Transform::getTz));
