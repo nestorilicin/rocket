@@ -22,7 +22,6 @@ import rs.etf.nestor.rocket.hud.VerticalView;
 import rs.etf.nestor.rocket.object.*;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Main extends Application {
@@ -31,6 +30,7 @@ public class Main extends Application {
     private static int remainingTime = 90;
     private final static int TIME_ON_BUBBLE_HIT_INCREMENT = 10;
     private final static int CANISTER_FUEL_INCREMENT = 100;
+    private final static int SLOW_TIMER_DURATION = 5;
     private Group root;
     private Group mainSceneRoot;
 
@@ -45,6 +45,10 @@ public class Main extends Application {
     private final List<SpaceObject> canisters = new ArrayList<>();
     private final UpdateTimer timer = new UpdateTimer();
 
+    private final List<SpaceObject> meteors = new ArrayList<>();
+    private boolean slowed = false;
+    private int slowTimer = 0;
+
     private final DefaultCamera defaultCamera = new DefaultCamera();
     private AbstractCamera camera;
 
@@ -52,7 +56,6 @@ public class Main extends Application {
     private double mouseYRight;
 
     private SubScene selectionSubscene;
-    private Group selectionGroup;
     private Spacecraft selectedRocket;
 
     private Text fuelText;
@@ -65,8 +68,10 @@ public class Main extends Application {
     private VerticalView verticalHud;
     private LightBase defaultLight;
 
+    private Text speedText;
+
     private void createSelectionScreen() {
-        selectionGroup = new Group();
+        Group selectionGroup = new Group();
 
         Rocket rocket = new Rocket();
         AltRocket altrocket = new AltRocket();
@@ -156,12 +161,25 @@ public class Main extends Application {
                 spacecraft.consumeFuel();
                 fuelText.setText("Fuel: " + (int) spacecraft.getFuel());
                 secondCounter += passed;
-                if(secondCounter > 1.0){
+                if (secondCounter > 1.0) {
                     secondCounter = 0;
                     remainingTime--;
                     totalGameTime++;
                     timeText.setText("Remaining time: " + remainingTime);
+                    if (slowed) {
+                        slowTimer--;
+                        if (slowTimer <= 0) {
+                            slowTimer = 0;
+                            slowed = false;
+                        }
+                        speedText.setFill(Color.RED);
+                    } else {
+                        speedText.setFill(Color.WHITESMOKE);
+                    }
                 }
+                speedText.setText("Maximum speed: " + spacecraft.getMaxSpeed() +
+                        "\nCurrent speed: " + spacecraft.getSpeed() +
+                        "\nMinimum speed: " + spacecraft.getMinSpeed());
                 hud.update(bubblesHit);
                 verticalHud.update();
                 camera.update();
@@ -172,21 +190,26 @@ public class Main extends Application {
     }
 
     private void checkForCollisions() {
-        Iterator<SpaceObject> iterator = bubbles.iterator();
-        while (iterator.hasNext()) {
-            SpaceObject spaceObject = iterator.next();
+        for (SpaceObject spaceObject : bubbles) {
             if (spaceObject.getBoundsInParent().intersects(spacecraft.getBoundsInParent())) {
                 positionObject(spaceObject);
                 remainingTime += TIME_ON_BUBBLE_HIT_INCREMENT;
+                timeText.setText("Remaining time: " + remainingTime);
                 bubblesHit++;
             }
         }
-        Iterator<SpaceObject> iterator2 = canisters.iterator();
-        while(iterator2.hasNext()){
-            SpaceObject spaceObject = iterator2.next();
-            if(spaceObject.getBoundsInParent().intersects(spacecraft.getBoundsInParent())){
+        for (SpaceObject spaceObject : canisters) {
+            if (spaceObject.getBoundsInParent().intersects(spacecraft.getBoundsInParent())) {
                 positionObject(spaceObject);
                 spacecraft.increaseFuel(CANISTER_FUEL_INCREMENT);
+            }
+        }
+        for (SpaceObject spaceObject : meteors) {
+            if (spaceObject.getBoundsInParent().intersects(spacecraft.getBoundsInParent())) {
+                positionObject(spaceObject);
+                slowed = true;
+                slowTimer = SLOW_TIMER_DURATION;
+                spacecraft.setMinSpeed();
             }
         }
     }
@@ -198,13 +221,20 @@ public class Main extends Application {
         mainSceneRoot.getChildren().add(bubble);
     }
 
-    private void drawCanister(){
+    private void drawCanister() {
         Canister canister = new Canister(300, Color.RED);
         positionObject(canister);
         canisters.add(canister);
         mainSceneRoot.getChildren().add(canister);
-        
     }
+
+    private void drawMeteor() {
+        SpaceMeteor meteor = new SpaceMeteor(300, Color.SADDLEBROWN);
+        positionObject(meteor);
+        meteors.add(meteor);
+        mainSceneRoot.getChildren().add(meteor);
+    }
+
     private void positionObject(SpaceObject object) {
         double x = (Math.random() < 0.5 ? 1f : -1f) * (Math.random() * 20000. + 10000);
         double y = (Math.random() < 0.5 ? 1f : -1f) * (Math.random() * 20000. + 10000);
@@ -217,7 +247,8 @@ public class Main extends Application {
     private void setUpSpaceObjects() {
         for (int i = 0; i < 12; i++) {
             drawBubble();
-            if(i % 2 == 0) {
+            drawMeteor();
+            if (i % 2 == 0) {
                 drawCanister();
             }
         }
@@ -248,9 +279,18 @@ public class Main extends Application {
         timeText.setFill(Color.WHITESMOKE);
         timeText.setText("Remaining time: " + remainingTime);
         timeText.setTranslateX(WINDOW_WIDTH / 2. - timeText.getBoundsInLocal().getWidth() / 2);
+
+        speedText = new Text();
+        speedText.setFont(new Font(20));
+        speedText.setTranslateX(20);
+        speedText.setTranslateY(60);
+        speedText.setFill(Color.WHITESMOKE);
+        speedText.setText("Maximum speed: " + spacecraft.getMaxSpeed() +
+                "\nCurrent speed: " + spacecraft.getSpeed() +
+                "\nMinimum speed: " + spacecraft.getMinSpeed());
         hud = new HeadsUpDisplay(spacecraft);
         verticalHud = new VerticalView(spacecraft);
-        root.getChildren().addAll(mainSubscene, fuelText, timeText, hud.getScene(), verticalHud.getScene());
+        root.getChildren().addAll(mainSubscene, fuelText, timeText, hud.getScene(), verticalHud.getScene(), speedText);
         timer.start();
     }
 
@@ -302,10 +342,12 @@ public class Main extends Application {
                 spacecraft.setRollDirection(1);
                 break;
             case C:
-                spacecraft.setAccelerationDirection(1);
+                if (!slowed)
+                    spacecraft.setAccelerationDirection(1);
                 break;
             case X:
-                spacecraft.setAccelerationDirection(-1);
+                if (!slowed)
+                    spacecraft.setAccelerationDirection(-1);
                 break;
             case H:
                 hud.toggleHide();

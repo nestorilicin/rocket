@@ -94,4 +94,12 @@ public class FlyState extends State {
         double amount = speed/maxSpeed * (1./10.);
         fuel -= amount;
     }
+
+    public double getSpeed() {
+        return speed;
+    }
+    
+    public void setMinSpeed(){
+        speed = minSpeed;
+    }
 }
