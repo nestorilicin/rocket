@@ -116,4 +116,17 @@ public abstract class Spacecraft extends SpaceObject {
         if (state instanceof FlyState)
             ((FlyState) state).setMinSpeed();
     }
+
+    public void changeMaxSpeed(double amount){
+        if(state instanceof FlyState)
+            ((FlyState) state).changeMaxSpeed(amount);
+        maxSpeed = ((FlyState) state).getMaxSpeed();
+    }
+
+    public void revertMaxSpeed(){
+        if(state instanceof FlyState)
+            ((FlyState) state).revertMaxSpeed();
+        maxSpeed = ((FlyState) state).getMaxSpeed();
+    }
+    
 }

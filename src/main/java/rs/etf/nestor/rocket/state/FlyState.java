@@ -12,7 +12,7 @@ public class FlyState extends State {
 
     private double maxSpeed;
     private double minSpeed;
-
+    private double oldMaxSpeed;
     private double rollAngle;
     private double pitchAngle;
     private double yawAngle;
@@ -101,5 +101,21 @@ public class FlyState extends State {
     
     public void setMinSpeed(){
         speed = minSpeed;
+    }
+    
+    public void changeMaxSpeed(double amount){
+        oldMaxSpeed = maxSpeed;
+        maxSpeed += amount;
+    }
+    
+    public void revertMaxSpeed(){
+        maxSpeed = oldMaxSpeed;
+        if(speed > maxSpeed){
+            speed = maxSpeed;
+        }
+    }
+
+    public double getMaxSpeed() {
+        return maxSpeed;
     }
 }

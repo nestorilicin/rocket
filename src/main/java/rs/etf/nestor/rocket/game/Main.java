@@ -31,6 +31,8 @@ public class Main extends Application {
     private final static int TIME_ON_BUBBLE_HIT_INCREMENT = 10;
     private final static int CANISTER_FUEL_INCREMENT = 100;
     private final static int SLOW_TIMER_DURATION = 5;
+    private final static int POWERUP_TIMER_DURATION = 5;
+    private final static int POWERUP_MAX_SPEED_INCREMENT = 1500;
     private Group root;
     private Group mainSceneRoot;
 
@@ -49,6 +51,9 @@ public class Main extends Application {
     private boolean slowed = false;
     private int slowTimer = 0;
 
+    private final List<SpaceObject> powerups = new ArrayList<>();
+    private boolean poweredUp = false;
+    private int powerUpTimer = 0;
     private final DefaultCamera defaultCamera = new DefaultCamera();
     private AbstractCamera camera;
 
@@ -68,7 +73,11 @@ public class Main extends Application {
     private VerticalView verticalHud;
     private LightBase defaultLight;
 
-    private Text speedText;
+    private Text maxSpeedText;
+    private Text currSpeedText;
+    private Text minSpeedText;
+    private Text powerUpsText;
+    private int powerUpCounter = 0;
 
     private void createSelectionScreen() {
         Group selectionGroup = new Group();
@@ -172,14 +181,25 @@ public class Main extends Application {
                             slowTimer = 0;
                             slowed = false;
                         }
-                        speedText.setFill(Color.RED);
+                        currSpeedText.setFill(Color.RED);
                     } else {
-                        speedText.setFill(Color.WHITESMOKE);
+                        currSpeedText.setFill(Color.WHITESMOKE);
+                    }
+                    if(poweredUp){
+                        powerUpTimer--;
+                        if(powerUpTimer <= 0){
+                            powerUpTimer = 0;
+                            poweredUp = false;
+                            spacecraft.revertMaxSpeed();
+                        }
+                        maxSpeedText.setFill(Color.YELLOW);
+                    } else{
+                        maxSpeedText.setFill(Color.WHITESMOKE);
                     }
                 }
-                speedText.setText("Maximum speed: " + spacecraft.getMaxSpeed() +
-                        "\nCurrent speed: " + spacecraft.getSpeed() +
-                        "\nMinimum speed: " + spacecraft.getMinSpeed());
+                maxSpeedText.setText("Maximum speed: " + spacecraft.getMaxSpeed());
+                currSpeedText.setText("Current speed: " + spacecraft.getSpeed());
+                minSpeedText.setText("Minimum speed: " + spacecraft.getMinSpeed());
                 hud.update(bubblesHit);
                 verticalHud.update();
                 camera.update();
@@ -212,6 +232,13 @@ public class Main extends Application {
                 spacecraft.setMinSpeed();
             }
         }
+        for (SpaceObject spaceObject : powerups) {
+            if (spaceObject.getBoundsInParent().intersects(spacecraft.getBoundsInParent())) {
+                positionObject(spaceObject);
+                powerUpCounter++;
+                powerUpsText.setText("PowerUps Counter: " + powerUpCounter);
+            }
+        }
     }
 
     private void drawBubble() {
@@ -235,6 +262,13 @@ public class Main extends Application {
         mainSceneRoot.getChildren().add(meteor);
     }
 
+    private void drawPowerup() {
+        SpacePowerUp powerup = new SpacePowerUp(300, Color.YELLOW);
+        positionObject(powerup);
+        powerups.add(powerup);
+        mainSceneRoot.getChildren().add(powerup);
+    }
+
     private void positionObject(SpaceObject object) {
         double x = (Math.random() < 0.5 ? 1f : -1f) * (Math.random() * 20000. + 10000);
         double y = (Math.random() < 0.5 ? 1f : -1f) * (Math.random() * 20000. + 10000);
@@ -248,6 +282,7 @@ public class Main extends Application {
         for (int i = 0; i < 12; i++) {
             drawBubble();
             drawMeteor();
+            drawPowerup();
             if (i % 2 == 0) {
                 drawCanister();
             }
@@ -280,17 +315,36 @@ public class Main extends Application {
         timeText.setText("Remaining time: " + remainingTime);
         timeText.setTranslateX(WINDOW_WIDTH / 2. - timeText.getBoundsInLocal().getWidth() / 2);
 
-        speedText = new Text();
-        speedText.setFont(new Font(20));
-        speedText.setTranslateX(20);
-        speedText.setTranslateY(60);
-        speedText.setFill(Color.WHITESMOKE);
-        speedText.setText("Maximum speed: " + spacecraft.getMaxSpeed() +
-                "\nCurrent speed: " + spacecraft.getSpeed() +
-                "\nMinimum speed: " + spacecraft.getMinSpeed());
+        maxSpeedText = new Text();
+        maxSpeedText.setFont(new Font(20));
+        maxSpeedText.setTranslateX(20);
+        maxSpeedText.setTranslateY(60);
+        maxSpeedText.setFill(Color.WHITESMOKE);
+        maxSpeedText.setText("Maximum speed: " + spacecraft.getMaxSpeed());
+        
+        currSpeedText = new Text();
+        currSpeedText.setFont(new Font(20));
+        currSpeedText.setTranslateX(20);
+        currSpeedText.setTranslateY(90);
+        currSpeedText.setFill(Color.WHITESMOKE);
+        currSpeedText.setText("Current speed: " + spacecraft.getSpeed());
+        
+        minSpeedText = new Text();
+        minSpeedText.setFont(new Font(20));
+        minSpeedText.setTranslateX(20);
+        minSpeedText.setTranslateY(120);
+        minSpeedText.setFill(Color.WHITESMOKE);
+        minSpeedText.setText("Minimum speed: " + spacecraft.getMinSpeed());
+        
+        powerUpsText = new Text();
+        powerUpsText.setFont(new Font(20));
+        powerUpsText.setTranslateX(20);
+        powerUpsText.setTranslateY(150);
+        powerUpsText.setFill(Color.WHITESMOKE);
+        powerUpsText.setText("PowerUps Counter: " + powerUpCounter);
         hud = new HeadsUpDisplay(spacecraft);
         verticalHud = new VerticalView(spacecraft);
-        root.getChildren().addAll(mainSubscene, fuelText, timeText, hud.getScene(), verticalHud.getScene(), speedText);
+        root.getChildren().addAll(mainSubscene, fuelText, timeText, hud.getScene(), verticalHud.getScene(), maxSpeedText, currSpeedText, minSpeedText, powerUpsText);
         timer.start();
     }
 
@@ -342,12 +396,10 @@ public class Main extends Application {
                 spacecraft.setRollDirection(1);
                 break;
             case C:
-                if (!slowed)
-                    spacecraft.setAccelerationDirection(1);
+                if (!slowed) spacecraft.setAccelerationDirection(1);
                 break;
             case X:
-                if (!slowed)
-                    spacecraft.setAccelerationDirection(-1);
+                if (!slowed) spacecraft.setAccelerationDirection(-1);
                 break;
             case H:
                 hud.toggleHide();
@@ -355,6 +407,15 @@ public class Main extends Application {
                 break;
             case L:
                 launchPad.toggleLight();
+                break;
+            case V:
+                if(powerUpCounter > 0){
+                    powerUpCounter--;
+                    powerUpsText.setText("PowerUps Counter: " + powerUpCounter);
+                    powerUpTimer = POWERUP_TIMER_DURATION;
+                    poweredUp = true;
+                    spacecraft.changeMaxSpeed(POWERUP_MAX_SPEED_INCREMENT);
+                }
                 break;
             case DIGIT1:
                 camera = defaultCamera;
