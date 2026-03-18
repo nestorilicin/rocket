@@ -423,6 +423,8 @@ public class Main extends Application {
                     powerUpTimer = POWERUP_TIMER_DURATION;
                     poweredUp = true;
                     spacecraft.changeMaxSpeed(POWERUP_MAX_SPEED_INCREMENT);
+                    maxSpeedText.setFill(Color.YELLOW);
+                    maxSpeedText.setText("Maximum speed: " + spacecraft.getMaxSpeed());
                 }
                 break;
             case DIGIT1:

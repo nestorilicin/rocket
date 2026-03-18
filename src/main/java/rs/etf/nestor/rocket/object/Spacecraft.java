@@ -21,6 +21,7 @@ public abstract class Spacecraft extends SpaceObject {
     protected int rollDirection;
     protected int accelerationDirection;
 
+    protected static int START_FUEL = 1000;
     protected State state;
 
     public abstract void update(double passed);
