@@ -22,6 +22,8 @@ public class VerticalView {
     private static final double width = Main.WINDOW_HEIGHT / 6.;
     private static final double height = Main.WINDOW_HEIGHT / 3.;
 
+    private final Text boundUp = new Text();
+    private final Text boundDown = new Text();
     public VerticalView(Spacecraft spacecraft) {
         this.spacecraft = spacecraft;
         create();
@@ -54,10 +56,8 @@ public class VerticalView {
         player.setFill(Color.RED);
         root.getChildren().add(player);
         
-        Text boundUp = new Text("+27000");
         boundUp.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         boundUp.setFill(Color.RED);
-        Text boundDown = new Text("-27000");
         boundDown.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         boundDown.setFill(Color.RED);
         boundUp.setTranslateX(width / 2. + 10);
@@ -69,9 +69,14 @@ public class VerticalView {
     }
 
     public void update() {
-        double hudZ = spacecraft.getPosition().getZ() / 300.;
-        
+        double worldZ = spacecraft.getPosition().getZ();
+        double hudZ = worldZ / 300.;
         player.setTranslateY(height / 2. - hudZ);
+        double range = (height / 2.) * 300.;
+        double upper = worldZ + range;
+        double lower = worldZ - range;
+        boundUp.setText(String.format("+%.0f", upper));
+        boundDown.setText(String.format("%.0f", lower));
         
     }
 
