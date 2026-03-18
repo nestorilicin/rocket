@@ -1,7 +1,6 @@
 package rs.etf.nestor.rocket.object;
 
 import javafx.scene.Group;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
@@ -11,18 +10,16 @@ import javafx.scene.transform.Translate;
 import rs.etf.nestor.rocket.geometry.Vector;
 import rs.etf.nestor.rocket.state.IdleState;
 
-import java.util.Objects;
-
 public class AltRocket extends Spacecraft {
     public AltRocket() {
         position = new Vector(0, 0, 0);
 
-        PhongMaterial sphereMaterial = new PhongMaterial(Color.CYAN);
-        PhongMaterial coneMaterial = new PhongMaterial(Color.CYAN);
-        Image sphereDiffuse = new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("t1.jpg")));
+        PhongMaterial sphereMaterial = new PhongMaterial(Color.TEAL);
+        PhongMaterial coneMaterial = new PhongMaterial(Color.TEAL);
+        /*Image sphereDiffuse = new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("t1.jpg")));
         Image coneDiffuse = new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("t3.jpg")));
         sphereMaterial.setDiffuseMap(sphereDiffuse);
-        coneMaterial.setDiffuseMap(coneDiffuse);
+        coneMaterial.setDiffuseMap(coneDiffuse);*/
         // od vrha na dole
         // polulopta
         Sphere topSphere = new Sphere(10);
