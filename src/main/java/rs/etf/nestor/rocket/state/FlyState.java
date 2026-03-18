@@ -21,8 +21,8 @@ public class FlyState extends State {
 
     private double rotationFactor;
 
-    public FlyState(Spacecraft spacecraft) {
-        super(spacecraft);
+    public FlyState(Spacecraft spacecraft, double fuel) {
+        super(spacecraft, fuel);
         this.maxRollAngle = spacecraft.getMaxRollAngle();
         this.maxPitchAngle = spacecraft.getMaxPitchAngle();
         this.rollSpeed = spacecraft.getRollSpeed();

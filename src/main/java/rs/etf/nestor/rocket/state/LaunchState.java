@@ -9,8 +9,8 @@ public class LaunchState extends State {
 
     private double rotateAngle = 90;
 
-    public LaunchState(Spacecraft spacecraft) {
-        super(spacecraft);
+    public LaunchState(Spacecraft spacecraft, double fuel) {
+        super(spacecraft, fuel);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class LaunchState extends State {
         spacecraft.getTransforms().add(new Rotate(rotateAngle, Rotate.X_AXIS));
 
         if (rotateAngle == 0) {
-            spacecraft.setState(new FlyState(spacecraft));
+            spacecraft.setState(new FlyState(spacecraft, fuel));
         }
     }
 

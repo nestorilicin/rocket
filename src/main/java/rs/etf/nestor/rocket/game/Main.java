@@ -30,6 +30,7 @@ public class Main extends Application {
     public static final int WINDOW_WIDTH = 900;
     private static int remainingTime = 90;
     private final static int TIME_ON_BUBBLE_HIT_INCREMENT = 10;
+    private final static int CANISTER_FUEL_INCREMENT = 100;
     private Group root;
     private Group mainSceneRoot;
 
@@ -41,6 +42,7 @@ public class Main extends Application {
     private final List<SpaceObject> bubbles = new ArrayList<>();
     private int bubblesHit;
 
+    private final List<SpaceObject> canisters = new ArrayList<>();
     private final UpdateTimer timer = new UpdateTimer();
 
     private final DefaultCamera defaultCamera = new DefaultCamera();
@@ -179,6 +181,14 @@ public class Main extends Application {
                 bubblesHit++;
             }
         }
+        Iterator<SpaceObject> iterator2 = canisters.iterator();
+        while(iterator2.hasNext()){
+            SpaceObject spaceObject = iterator2.next();
+            if(spaceObject.getBoundsInParent().intersects(spacecraft.getBoundsInParent())){
+                positionObject(spaceObject);
+                spacecraft.increaseFuel(CANISTER_FUEL_INCREMENT);
+            }
+        }
     }
 
     private void drawBubble() {
@@ -188,6 +198,13 @@ public class Main extends Application {
         mainSceneRoot.getChildren().add(bubble);
     }
 
+    private void drawCanister(){
+        Canister canister = new Canister(300, Color.RED);
+        positionObject(canister);
+        canisters.add(canister);
+        mainSceneRoot.getChildren().add(canister);
+        
+    }
     private void positionObject(SpaceObject object) {
         double x = (Math.random() < 0.5 ? 1f : -1f) * (Math.random() * 20000. + 10000);
         double y = (Math.random() < 0.5 ? 1f : -1f) * (Math.random() * 20000. + 10000);
@@ -200,6 +217,9 @@ public class Main extends Application {
     private void setUpSpaceObjects() {
         for (int i = 0; i < 12; i++) {
             drawBubble();
+            if(i % 2 == 0) {
+                drawCanister();
+            }
         }
     }
 

@@ -91,6 +91,10 @@ public abstract class Spacecraft extends SpaceObject {
         state.consumeFuel();
     }
     
+    public void increaseFuel(double amount){
+        state.increaseFuel(amount);
+    }
+    
     public Text getRocketInfo(String name, Color c){
         Text rocketInfo = new Text(name +"\n" +
                 "\nMaxSpeed " + getMaxSpeed() + 
