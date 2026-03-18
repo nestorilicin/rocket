@@ -16,7 +16,7 @@ import rs.etf.nestor.rocket.object.Spacecraft;
 public class VerticalView {
     private SubScene scene;
     private Circle player;
-    
+
     private final Spacecraft spacecraft;
 
     private static final double width = Main.WINDOW_HEIGHT / 6.;
@@ -24,6 +24,7 @@ public class VerticalView {
 
     private final Text boundUp = new Text();
     private final Text boundDown = new Text();
+
     public VerticalView(Spacecraft spacecraft) {
         this.spacecraft = spacecraft;
         create();
@@ -38,12 +39,12 @@ public class VerticalView {
         rec.setFill(Color.color(0.44, 0.54, 0.23)); // color picker inspect element
         rec.setStroke(Color.BLACK);
         root.getChildren().add(rec);
-        
+
         Line line = new Line(width / 2., 20, width / 2., height - 20);
         line.setStroke(Color.RED);
         root.getChildren().add(line);
-        
-        Rectangle base =  new Rectangle(20, 5);
+
+        Rectangle base = new Rectangle(20, 5);
         base.setArcWidth(45);
         base.setArcHeight(60);
         base.setFill(Color.RED);
@@ -55,7 +56,7 @@ public class VerticalView {
         player.setTranslateY(height / 2.);
         player.setFill(Color.RED);
         root.getChildren().add(player);
-        
+
         boundUp.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         boundUp.setFill(Color.RED);
         boundDown.setFont(Font.font("Arial", FontWeight.BOLD, 14));
@@ -65,7 +66,7 @@ public class VerticalView {
         boundDown.setTranslateX(width / 2. + 10);
         boundDown.setTranslateY(height - 20);
         root.getChildren().addAll(boundUp, boundDown);
-        
+
     }
 
     public void update() {
@@ -77,7 +78,7 @@ public class VerticalView {
         double lower = worldZ - range;
         boundUp.setText(String.format("+%.0f", upper));
         boundDown.setText(String.format("%.0f", lower));
-        
+
     }
 
     public SubScene getScene() {

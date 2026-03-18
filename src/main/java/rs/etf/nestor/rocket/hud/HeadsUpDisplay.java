@@ -19,7 +19,7 @@ public class HeadsUpDisplay {
     private Text bubblesHitText;
     private Circle player;
     private Polygon arrow;
-    
+
     private final Spacecraft spacecraft;
 
     private static final double width = Main.WINDOW_WIDTH / 3.;
@@ -89,20 +89,20 @@ public class HeadsUpDisplay {
         compassCircle.setTranslateY(33);
         compassCircle.setTranslateX(width - 33);
         root.getChildren().add(compassCircle);
-        
+
         arrow = new Polygon(0, -33, -3, 33, 3, 33);
         arrow.setTranslateY(33);
         arrow.setTranslateX(width - 33);
         arrow.setFill(Color.WHITE);
         root.getChildren().add(arrow);
-                
+
     }
 
     public void update(int bubblesHit) {
         coordinates.setText(
                 String.format("%.4f", spacecraft.getPosition().getX()) + "\n" +
-                String.format("%.4f", spacecraft.getPosition().getY()) + "\n" +
-                String.format("%.4f", spacecraft.getPosition().getZ())
+                        String.format("%.4f", spacecraft.getPosition().getY()) + "\n" +
+                        String.format("%.4f", spacecraft.getPosition().getZ())
         );
         bubblesHitText.setText(
                 String.valueOf(bubblesHit)

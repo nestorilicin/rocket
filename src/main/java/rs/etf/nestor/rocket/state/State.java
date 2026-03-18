@@ -4,7 +4,7 @@ import rs.etf.nestor.rocket.object.Spacecraft;
 
 public abstract class State {
     protected Spacecraft spacecraft;
-    protected double fuel = 1000;
+    protected double fuel;
     public State(Spacecraft spacecraft, double fuel) {
         this.spacecraft = spacecraft;
         this.fuel = fuel;

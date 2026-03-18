@@ -24,16 +24,27 @@ public class RearCamera extends AbstractCamera {
         double translateY = cameraY - offsetY;
         double translateZ = cameraZ - offsetZ;
         camera.getTransforms().setAll(
-                new Translate(targetX, targetY, targetZ), 
-                new Rotate(-90, Rotate.X_AXIS), 
-                new Rotate(-target.getHorizontalAngle(), Rotate.Y_AXIS), 
+                new Translate(targetX, targetY, targetZ),
+                new Rotate(-90, Rotate.X_AXIS),
+                new Rotate(-target.getHorizontalAngle(), Rotate.Y_AXIS),
                 new Translate(0, translateY, translateZ));
     }
 
-    public void increaseDistance() { if(cameraZ < -200) cameraZ += 50; }
-    public void decreaseDistance() { if (cameraZ > -1500) cameraZ -= 50; }
-    public void increaseHeight() { if(cameraY < 660) cameraY += 20; }
-    public void decreaseHeight() { if(cameraY > -260) cameraY -= 20; }
+    public void increaseDistance() {
+        if (cameraZ < -200) cameraZ += 50;
+    }
+
+    public void decreaseDistance() {
+        if (cameraZ > -1500) cameraZ -= 50;
+    }
+
+    public void increaseHeight() {
+        if (cameraY < 660) cameraY += 20;
+    }
+
+    public void decreaseHeight() {
+        if (cameraY > -260) cameraY -= 20;
+    }
 
     public int getCameraY() {
         return cameraY;
@@ -42,5 +53,5 @@ public class RearCamera extends AbstractCamera {
     public int getCameraZ() {
         return cameraZ;
     }
-    
+
 }

@@ -1,7 +1,7 @@
 package rs.etf.nestor.rocket.object;
 
-import rs.etf.nestor.rocket.geometry.Vector;
 import javafx.scene.Group;
+import rs.etf.nestor.rocket.geometry.Vector;
 
 public abstract class SpaceObject extends Group {
     protected Vector position;
@@ -9,6 +9,10 @@ public abstract class SpaceObject extends Group {
 
     public Vector getPosition() {
         return position;
+    }
+
+    public void setPosition(Vector v) {
+        this.position = v;
     }
 
     public double getHorizontalAngle() {

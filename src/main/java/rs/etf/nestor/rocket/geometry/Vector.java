@@ -5,7 +5,8 @@ public class Vector {
     private double y;
     private double z;
 
-    public Vector() {}
+    public Vector() {
+    }
 
     public Vector(double _x, double _y, double _z) {
         x = _x;
@@ -68,5 +69,12 @@ public class Vector {
 
     public void setZ(double z) {
         this.z = z;
+    }
+
+    public double distance(Vector v1) {
+        double dx = x - v1.x;
+        double dy = y - v1.y;
+        double dz = z - v1.z;
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 }

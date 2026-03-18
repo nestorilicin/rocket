@@ -1,6 +1,5 @@
 package rs.etf.nestor.rocket.object;
 
-import rs.etf.nestor.rocket.geometry.Vector;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -9,6 +8,7 @@ import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
+import rs.etf.nestor.rocket.geometry.Vector;
 import rs.etf.nestor.rocket.state.IdleState;
 
 import java.util.Objects;
@@ -72,8 +72,8 @@ public class Rocket extends Spacecraft {
         wing3.getTransforms().addAll(new Rotate(-90, Rotate.Y_AXIS), new Translate(50, -60, 0));
 
         this.getChildren().addAll(mainBody, sphere, wing1, wing2, wing3);
-        
-        
+
+
         state = new IdleState(this, 1000);
 
         this.getTransforms().addAll(new Translate(position.getX(), position.getY(), position.getZ()));
@@ -101,12 +101,12 @@ public class Rocket extends Spacecraft {
             points[index] = 0;
             points[index + 1] = 0;
             points[index + 2] = height / 2;
-            points[index + 3] = (float)Math.cos(Math.toRadians(i)) * radius;
-            points[index + 4] = (float)Math.sin(Math.toRadians(i)) * radius;
-            points[index + 5] = - height / 2;
-            points[index + 6] = (float)Math.cos(Math.toRadians(i + 1)) * radius;
-            points[index + 7] = (float)Math.sin(Math.toRadians(i + 1)) * radius;
-            points[index + 8] = - height / 2;
+            points[index + 3] = (float) Math.cos(Math.toRadians(i)) * radius;
+            points[index + 4] = (float) Math.sin(Math.toRadians(i)) * radius;
+            points[index + 5] = -height / 2;
+            points[index + 6] = (float) Math.cos(Math.toRadians(i + 1)) * radius;
+            points[index + 7] = (float) Math.sin(Math.toRadians(i + 1)) * radius;
+            points[index + 8] = -height / 2;
         }
 
         for (int i = 0; i < numberOfTriangles; i++) {
@@ -130,7 +130,7 @@ public class Rocket extends Spacecraft {
 
         Cylinder circle = new Cylinder(radius, 0.1);
         circle.setMaterial(material);
-        circle.setTranslateZ(- height / 2);
+        circle.setTranslateZ(-height / 2);
         circle.setRotationAxis(Rotate.X_AXIS);
         circle.setRotate(90);
 
@@ -223,7 +223,7 @@ public class Rocket extends Spacecraft {
     }
 
     private MeshView wingMesh(PhongMaterial material, int numberOfTriangles) {
-        float diff = (float)90 / numberOfTriangles;
+        float diff = (float) 90 / numberOfTriangles;
 
         float[] points = new float[numberOfTriangles * 3 * 3];
         float[] textCoords = {
@@ -238,11 +238,11 @@ public class Rocket extends Spacecraft {
             points[index] = 0;
             points[index + 1] = 0;
             points[index + 2] = 0;
-            float x1 = (float)Math.cos(Math.toRadians(i * diff)) * 50;
-            float y1 = (float)Math.sin(Math.toRadians(i * diff)) * 50;
+            float x1 = (float) Math.cos(Math.toRadians(i * diff)) * 50;
+            float y1 = (float) Math.sin(Math.toRadians(i * diff)) * 50;
             float z1 = 0;
-            float x2 = (float)Math.cos(Math.toRadians((i + 1) * diff)) * 50;
-            float y2 = (float)Math.sin(Math.toRadians((i + 1) * diff)) * 50;
+            float x2 = (float) Math.cos(Math.toRadians((i + 1) * diff)) * 50;
+            float y2 = (float) Math.sin(Math.toRadians((i + 1) * diff)) * 50;
             float z2 = 0;
 
             points[index + 3] = x1;

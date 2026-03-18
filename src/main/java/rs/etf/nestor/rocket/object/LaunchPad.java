@@ -1,6 +1,8 @@
 package rs.etf.nestor.rocket.object;
 
-import javafx.scene.*;
+import javafx.scene.Group;
+import javafx.scene.LightBase;
+import javafx.scene.PointLight;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -16,7 +18,8 @@ public class LaunchPad extends SpaceObject {
     private Sphere[] light_spheres;
     private boolean lightsOn = false;
     private final LightBase defaultLight;
-    public LaunchPad(Spacecraft  spacecraft, LightBase light) {
+
+    public LaunchPad(Spacecraft spacecraft, LightBase light) {
         this.defaultLight = light;
         Image illumin = new Image(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("bulb.png")));
         bulb = new PhongMaterial();
@@ -27,28 +30,28 @@ public class LaunchPad extends SpaceObject {
         ramp.setTranslateY(150);
         platform.setTranslateY(-25);
         lightPoles.setTranslateY(-25);
-        for(int i = 0; i < 3; i++){
+        for (int i = 0; i < 3; i++) {
             lights[i].getScope().addAll(platform, ramp, lightPoles, spacecraft);
         }
         toggleLight();
         getChildren().addAll(platform, ramp);
         getChildren().add(lightPoles);
-        
+
         getTransforms().add(new Translate(0, 0, -200));
     }
 
     public void toggleLight() {
-        if(lightsOn) {
+        if (lightsOn) {
             // ugasi
-            for(int i = 0; i < 3; i++){
+            for (int i = 0; i < 3; i++) {
                 light_spheres[i].setMaterial(null);
                 //lights[i].getScope().removeAll(platform, ramp,  lightPoles);
                 lights[i].setLightOn(false);
                 defaultLight.setLightOn(true);
             }
-        } else{
+        } else {
             // upali
-            for(int i = 0; i < 3; i++){
+            for (int i = 0; i < 3; i++) {
                 light_spheres[i].setMaterial(bulb);
                 //lights[i].getScope().addAll(platform, ramp,  lightPoles);
                 lights[i].setLightOn(true);
@@ -124,7 +127,7 @@ public class LaunchPad extends SpaceObject {
                 new Translate(800 - 1, 0.0, 75.0)
         );
 
-        
+
         lights[0] = light1;
         lights[1] = light2;
         lights[2] = light3;
@@ -132,7 +135,7 @@ public class LaunchPad extends SpaceObject {
         light_spheres[0] = bulb1;
         light_spheres[1] = bulb2;
         light_spheres[2] = bulb3;
-        
+
         group.getChildren().addAll(
                 pole1, pole2, pole3,
                 bulb1, bulb2, bulb3,

@@ -33,6 +33,7 @@ public class Main extends Application {
     private final static int SLOW_TIMER_DURATION = 5;
     private final static int POWERUP_TIMER_DURATION = 5;
     private final static int POWERUP_MAX_SPEED_INCREMENT = 1500;
+    private final static int FUEL_INCREMENT_PER_SECOND = 25;
     private Group root;
     private Group mainSceneRoot;
 
@@ -170,7 +171,13 @@ public class Main extends Application {
                 spacecraft.consumeFuel();
                 fuelText.setText("Fuel: " + (int) spacecraft.getFuel());
                 secondCounter += passed;
+                if (slowed) {
+                    spacecraft.setMinSpeed();
+                    currSpeedText.setFill(Color.RED);
+                }
                 if (secondCounter > 1.0) {
+                    if (spacecraft.isIdle())
+                        spacecraft.increaseFuel(FUEL_INCREMENT_PER_SECOND);
                     secondCounter = 0;
                     remainingTime--;
                     totalGameTime++;
@@ -185,15 +192,15 @@ public class Main extends Application {
                     } else {
                         currSpeedText.setFill(Color.WHITESMOKE);
                     }
-                    if(poweredUp){
+                    if (poweredUp) {
                         powerUpTimer--;
-                        if(powerUpTimer <= 0){
+                        if (powerUpTimer <= 0) {
                             powerUpTimer = 0;
                             poweredUp = false;
                             spacecraft.revertMaxSpeed();
                         }
                         maxSpeedText.setFill(Color.YELLOW);
-                    } else{
+                    } else {
                         maxSpeedText.setFill(Color.WHITESMOKE);
                     }
                 }
@@ -230,6 +237,7 @@ public class Main extends Application {
                 slowed = true;
                 slowTimer = SLOW_TIMER_DURATION;
                 spacecraft.setMinSpeed();
+                currSpeedText.setFill(Color.RED);
             }
         }
         for (SpaceObject spaceObject : powerups) {
@@ -321,21 +329,21 @@ public class Main extends Application {
         maxSpeedText.setTranslateY(60);
         maxSpeedText.setFill(Color.WHITESMOKE);
         maxSpeedText.setText("Maximum speed: " + spacecraft.getMaxSpeed());
-        
+
         currSpeedText = new Text();
         currSpeedText.setFont(new Font(20));
         currSpeedText.setTranslateX(20);
         currSpeedText.setTranslateY(90);
         currSpeedText.setFill(Color.WHITESMOKE);
         currSpeedText.setText("Current speed: " + spacecraft.getSpeed());
-        
+
         minSpeedText = new Text();
         minSpeedText.setFont(new Font(20));
         minSpeedText.setTranslateX(20);
         minSpeedText.setTranslateY(120);
         minSpeedText.setFill(Color.WHITESMOKE);
         minSpeedText.setText("Minimum speed: " + spacecraft.getMinSpeed());
-        
+
         powerUpsText = new Text();
         powerUpsText.setFont(new Font(20));
         powerUpsText.setTranslateX(20);
@@ -409,7 +417,7 @@ public class Main extends Application {
                 launchPad.toggleLight();
                 break;
             case V:
-                if(powerUpCounter > 0){
+                if (powerUpCounter > 0) {
                     powerUpCounter--;
                     powerUpsText.setText("PowerUps Counter: " + powerUpCounter);
                     powerUpTimer = POWERUP_TIMER_DURATION;

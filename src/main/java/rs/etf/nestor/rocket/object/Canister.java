@@ -10,20 +10,20 @@ import java.util.Objects;
 
 
 public class Canister extends SpaceObject {
-    public Canister(double width, Color diffusecolor){
+    public Canister(double width, Color diffusecolor) {
         double height = width * 8.5 / 5.;
         double depth = width * 1.75 / 5.;
-        double pipe_side = width *.5 / 5.;
-        // model za ovo je bila kutija cigareta americke proizvodnje
+        double pipe_side = width * .5 / 5.;
+        // model za ovo je bila kutija americke cigarete japanske proizvodnje u senti 
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseColor(diffusecolor);
-        Box box = new Box(width, depth , height);
-        Image diffuseMap =new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("canister.jpg")));
+        Box box = new Box(width, depth, height);
+        Image diffuseMap = new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("canister.jpg")));
         material.setDiffuseMap(diffuseMap);
         material.setSpecularColor(Color.WHITE);
         box.setMaterial(material);
-        
-        Box pipe =  new Box(pipe_side, pipe_side, pipe_side*4);
+
+        Box pipe = new Box(pipe_side, pipe_side, pipe_side * 4);
         PhongMaterial material2 = new PhongMaterial();
         material2.setDiffuseColor(Color.GAINSBORO);
         pipe.setMaterial(material2);

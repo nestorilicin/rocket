@@ -3,7 +3,10 @@ package rs.etf.nestor.rocket.object;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.*;
+import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.MeshView;
+import javafx.scene.shape.Sphere;
+import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
@@ -16,10 +19,6 @@ public class AltRocket extends Spacecraft {
 
         PhongMaterial sphereMaterial = new PhongMaterial(Color.TEAL);
         PhongMaterial coneMaterial = new PhongMaterial(Color.TEAL);
-        /*Image sphereDiffuse = new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("t1.jpg")));
-        Image coneDiffuse = new Image(Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("t3.jpg")));
-        sphereMaterial.setDiffuseMap(sphereDiffuse);
-        coneMaterial.setDiffuseMap(coneDiffuse);*/
         // od vrha na dole
         // polulopta
         Sphere topSphere = new Sphere(10);
@@ -44,11 +43,11 @@ public class AltRocket extends Spacecraft {
         body2.setMaterial(sphereMaterial);
         body2.getTransforms().add(new Translate(0, -107.5, 0));
 
-        // zarubljena kupa - rep
+        // zarubljena kupa rep
         Group cone3 = makeCutCone(12, 22, 20, coneMaterial);
         cone3.getTransforms().add(new Translate(0, -125, 0));
 
-        // valjak - dno rakete 
+        // valjak dno rakete 
         Cylinder body3 = new Cylinder(22, 1);
         body3.setMaterial(sphereMaterial);
         body3.getTransforms().add(new Translate(0, -135, 0));
@@ -57,11 +56,11 @@ public class AltRocket extends Spacecraft {
         Group wing1 = makeWing(sphereMaterial);
         Group wing2 = makeWing(sphereMaterial);
         Group wing3 = makeWing(sphereMaterial);
-        
+
         wing1.getTransforms().addAll(new Translate(-50, -75, 0)); // desno
         wing2.getTransforms().addAll(new Scale(-1, 1, 1), new Translate(-50, -75, 0)); // levo (flip)
         wing3.getTransforms().addAll(new Rotate(90, Rotate.Y_AXIS), new Translate(-50, -75, 0)); // pozadi
-        
+
         this.getChildren().addAll(topSphere, cone1, body1, cone2, body2, cone3, body3, wing1, wing2, wing3);
 
         state = new IdleState(this, 1000);
@@ -114,7 +113,7 @@ public class AltRocket extends Spacecraft {
             float z2Bottom = (float) Math.sin(angle2) * bottomRadius;
 
             int index = i * 18;
-            
+
             points[index] = x1Top;
             points[index + 1] = y1Top;
             points[index + 2] = z1Top;
@@ -126,7 +125,7 @@ public class AltRocket extends Spacecraft {
             points[index + 6] = x1Bottom;
             points[index + 7] = y1Bottom;
             points[index + 8] = z1Bottom;
-            
+
             points[index + 9] = x2Top;
             points[index + 10] = y2Top;
             points[index + 11] = z2Top;
@@ -169,19 +168,19 @@ public class AltRocket extends Spacecraft {
     private Group makeWing(PhongMaterial material) {
         Group wing = new Group();
 
-        float width = 40;   
-        float height = 50;   
-        float depth = 3;    
+        float width = 40;
+        float height = 50;
+        float depth = 3;
 
         float[] points = new float[]{
-                0, 0, 0,           
-                width, 0, 0,  
-                width, height, 0,  
-                
+                0, 0, 0,
+                width, 0, 0,
+                width, height, 0,
+
                 width, height, depth,
-                0,0, depth,
+                0, 0, depth,
                 width, 0, depth
-                
+
         };
 
         float[] texCoords = new float[]{
@@ -191,29 +190,29 @@ public class AltRocket extends Spacecraft {
         };
 
         int[] faces = new int[]{
-                0,0, 1,1, 2,2,
-                0,0, 2,2, 1,1,
-                
-                0,0, 2,2, 3,1,
-                0,0, 3,1, 2,2,
-                
-                3,1, 4,2, 0,0,
-                3,1, 0,0, 4,2,
-                
-                4,2, 5,0, 3,1,
-                4,2, 3,1, 5,0,
-                
-                0,0, 1,1, 5,2,
-                0,0, 5,2, 1,1,
-                
-                5,2, 4,1, 0,0,
-                5,2, 0,0, 4,1,
-                
-                1,1, 5,2, 2,0,
-                1,1, 2,0, 5,2,
-                
-                3,0, 5,1, 2,2,
-                3,0, 2,2, 5,1
+                0, 0, 1, 1, 2, 2,
+                0, 0, 2, 2, 1, 1,
+
+                0, 0, 2, 2, 3, 1,
+                0, 0, 3, 1, 2, 2,
+
+                3, 1, 4, 2, 0, 0,
+                3, 1, 0, 0, 4, 2,
+
+                4, 2, 5, 0, 3, 1,
+                4, 2, 3, 1, 5, 0,
+
+                0, 0, 1, 1, 5, 2,
+                0, 0, 5, 2, 1, 1,
+
+                5, 2, 4, 1, 0, 0,
+                5, 2, 0, 0, 4, 1,
+
+                1, 1, 5, 2, 2, 0,
+                1, 1, 2, 0, 5, 2,
+
+                3, 0, 5, 1, 2, 2,
+                3, 0, 2, 2, 5, 1
         };
 
         TriangleMesh mesh = new TriangleMesh();
@@ -224,7 +223,7 @@ public class AltRocket extends Spacecraft {
         MeshView wingMesh = new MeshView(mesh);
         wingMesh.setMaterial(material);
         wing.getChildren().add(wingMesh);
-        
+
 
         return wing;
     }

@@ -2,16 +2,18 @@ package rs.etf.nestor.rocket.state;
 
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
+import rs.etf.nestor.rocket.geometry.Vector;
 import rs.etf.nestor.rocket.object.Spacecraft;
 
+@SuppressWarnings({"FieldCanBeLocal", "ManualMinMaxCalculation"})
 public class FlyState extends State {
-    private double maxRollAngle;
-    private double maxPitchAngle;
-    private double rollSpeed;
-    private double pitchSpeed;
+    private final double maxRollAngle;
+    private final double maxPitchAngle;
+    private final double rollSpeed;
+    private final double pitchSpeed;
 
     private double maxSpeed;
-    private double minSpeed;
+    private final double minSpeed;
     private double oldMaxSpeed;
     private double rollAngle;
     private double pitchAngle;
@@ -19,7 +21,7 @@ public class FlyState extends State {
 
     private double speed;
 
-    private double rotationFactor;
+    private final double rotationFactor;
 
     public FlyState(Spacecraft spacecraft, double fuel) {
         super(spacecraft, fuel);
@@ -91,31 +93,42 @@ public class FlyState extends State {
 
     @Override
     public void consumeFuel() {
-        double amount = speed/maxSpeed * (1./10.);
+        double amount = speed / maxSpeed * (1. / 10.);
         fuel -= amount;
     }
 
     public double getSpeed() {
         return speed;
     }
-    
-    public void setMinSpeed(){
+
+    public void setMinSpeed() {
         speed = minSpeed;
     }
-    
-    public void changeMaxSpeed(double amount){
+
+    public void changeMaxSpeed(double amount) {
         oldMaxSpeed = maxSpeed;
         maxSpeed += amount;
     }
-    
-    public void revertMaxSpeed(){
+
+    public void revertMaxSpeed() {
         maxSpeed = oldMaxSpeed;
-        if(speed > maxSpeed){
+        if (speed > maxSpeed) {
             speed = maxSpeed;
         }
     }
 
     public double getMaxSpeed() {
         return maxSpeed;
+    }
+
+    @Override
+    public void spacePressed() {
+        Vector start = new Vector(0, 0, 0);
+        if (spacecraft.getPosition().distance(start) < 5000) {
+            spacecraft.setPosition(start);
+            spacecraft.setHorizontalAngle(0.0);
+            spacecraft.setState(new IdleState(spacecraft, fuel));
+        }
+
     }
 }

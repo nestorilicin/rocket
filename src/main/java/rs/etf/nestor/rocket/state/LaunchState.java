@@ -33,4 +33,8 @@ public class LaunchState extends State {
         }
     }
 
+    @Override
+    public void consumeFuel() {
+        fuel -= liftOffSpeed / 10e4 ;
+    }
 }

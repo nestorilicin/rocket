@@ -5,6 +5,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import rs.etf.nestor.rocket.state.FlyState;
+import rs.etf.nestor.rocket.state.IdleState;
 import rs.etf.nestor.rocket.state.State;
 
 public abstract class Spacecraft extends SpaceObject {
@@ -97,9 +98,7 @@ public abstract class Spacecraft extends SpaceObject {
     }
 
     public Text getRocketInfo(String name, Color c) {
-        Text rocketInfo = new Text(name + "\n" +
-                "\nMaxSpeed " + getMaxSpeed() +
-                "\nRoll speed " + getRollSpeed());
+        Text rocketInfo = new Text(name + "\n" + "\nMaxSpeed " + getMaxSpeed() + "\nRoll speed " + getRollSpeed());
         rocketInfo.setFont(new Font(24));
         rocketInfo.setTextAlignment(TextAlignment.CENTER);
         rocketInfo.setFill(c);
@@ -107,26 +106,31 @@ public abstract class Spacecraft extends SpaceObject {
     }
 
     public double getSpeed() {
-        if (state instanceof FlyState)
-            return ((FlyState) state).getSpeed();
+        if (state instanceof FlyState) return ((FlyState) state).getSpeed();
         return 0;
     }
 
     public void setMinSpeed() {
-        if (state instanceof FlyState)
-            ((FlyState) state).setMinSpeed();
+        if (state instanceof FlyState) ((FlyState) state).setMinSpeed();
     }
 
-    public void changeMaxSpeed(double amount){
-        if(state instanceof FlyState)
+    public void changeMaxSpeed(double amount) {
+        if (state instanceof FlyState) {
             ((FlyState) state).changeMaxSpeed(amount);
-        maxSpeed = ((FlyState) state).getMaxSpeed();
+            maxSpeed = ((FlyState) state).getMaxSpeed();
+        }
+
     }
 
-    public void revertMaxSpeed(){
-        if(state instanceof FlyState)
+    public void revertMaxSpeed() {
+        if (state instanceof FlyState) {
             ((FlyState) state).revertMaxSpeed();
-        maxSpeed = ((FlyState) state).getMaxSpeed();
+            maxSpeed = ((FlyState) state).getMaxSpeed();
+        }
     }
-    
+
+    public boolean isIdle() {
+        return state instanceof IdleState;
+    }
+
 }
